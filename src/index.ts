@@ -1,11 +1,47 @@
+// import { PrismaClient } from '@prisma/client'
+
+// const prisma = new PrismaClient()
+
+// async function main() {
+//   // ... your Prisma Client queries will go here
+// }
+
+// main()
+//   .catch((e) => console.error(e))
+//   .finally(async () => await prisma.$disconnect())
+
 import { PrismaClient } from '@prisma/client'
+import express from 'express'
+import routes from './routes/index';
 
 const prisma = new PrismaClient()
+const app = express()
 
-async function main() {
-  // ... your Prisma Client queries will go here
-}
+app.use(express.json())
 
-main()
-  .catch((e) => console.error(e))
-  .finally(async () => await prisma.$disconnect())
+app.use("/", routes);
+
+// async function main() {
+//     const newProduct = await prisma.product.create({
+//       data: {
+//         isbn: "isbnlibro1",      
+//         title: "titulo del libro1" ,     
+//         price: 200,       
+//         author: "autordellibro1" ,     
+//         editorial: "editorialdellibro1",
+//         code: "codigolibro1",     
+//         stock: 10      
+//       },
+//     })
+//     console.log('Created new product: ', newProduct)
+//   }
+//   main()
+//     .catch((e) => console.error(e))
+//     .finally(async () => await prisma.$disconnect())
+
+
+app.listen(3000, () =>
+  console.log('REST API server ready at: http://localhost:3000'),
+)
+
+export default prisma
