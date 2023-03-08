@@ -94,6 +94,29 @@ export async function login(req: Request, res: Response) {
   }
 }
 
+
+
+export async function addCart(req: Request, res: Response)  {
+  const { userId } = req.params;
+  const { productId, amount } = req.body;
+
+  try {
+    const shoppingCart = await prisma.shoppingCart.create({
+      data: {
+        user: { connect: { id: parseInt(userId) } },
+        productId: productId,
+        amount: parseInt(amount)
+      }
+    });
+    res.json(shoppingCart);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error adding product to shopping cart');
+  }
+}
+
+
+
 // export const updateUser = async (
 //     { username, clave, direccion, numero_celular, dni, foto }: datosUsuario,
 //     userId: number,

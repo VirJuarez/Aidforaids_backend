@@ -18,6 +18,7 @@ model User {
   password  String
   address   String?
   photoUrl  String?
+  cart      ShoppingCart?
 }
 
 model Product {
@@ -28,4 +29,12 @@ model Product {
   author      String
   editorial   String
   stock       Int
+}
+
+model ShoppingCart {
+  id          Int         @id @default(autoincrement())
+  user        User        @relation(fields: [userId], references: [id])
+  productId   Int?   
+  amount      Int?        @default(1)
+  userId      Int         @unique   
 }

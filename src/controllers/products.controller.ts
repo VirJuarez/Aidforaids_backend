@@ -29,13 +29,13 @@ export const updateProduct = async (req: Request, res:Response) => {
   const { nuevostock } = req.body;
   const productToUpdate = await prisma.product.findUnique({
     where: {
-      isbn: String(productISBN)
+      isbn: productISBN
     },
   });
   const newInventory = productToUpdate?.stock + nuevostock;
 
   const product = await prisma.product.update({
-    where: { isbn: String(productISBN) },
+    where: { isbn: productISBN },
     data: { stock: newInventory },
   });
 
