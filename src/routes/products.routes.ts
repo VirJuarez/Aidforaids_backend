@@ -7,7 +7,7 @@ const Prodrouter : Router = Router();
 
 Prodrouter.get('/', getProducts);
 Prodrouter.post('/', addProduct);
-Prodrouter.put('/:productId', updateProduct);
+Prodrouter.put('/:productISBN', updateProduct);
 //router.post('/:productId/purchases', addProductPurchase);
 
 export default Prodrouter;

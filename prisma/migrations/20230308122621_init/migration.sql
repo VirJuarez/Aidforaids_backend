@@ -18,7 +18,6 @@ CREATE TABLE "Product" (
     "price" DOUBLE PRECISION NOT NULL,
     "author" TEXT NOT NULL,
     "editorial" TEXT NOT NULL,
-    "code" TEXT NOT NULL,
     "stock" INTEGER NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
@@ -30,5 +29,4 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_isbn_key" ON "Product"("isbn");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Product_code_key" ON "Product"("code");
+

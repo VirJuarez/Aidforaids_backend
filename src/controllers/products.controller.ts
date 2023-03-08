@@ -8,7 +8,7 @@ export const getProducts = async (req: Request, res:Response) => {
 };
 
 export const addProduct = async (req: Request, res:Response) => {
-  const { isbn, title, price, author, editorial, code, stock } = req.body;
+  const {isbn, title, price, author, editorial, stock } = req.body;
 
   const product = await prisma.product.create({
     data: {
@@ -17,7 +17,6 @@ export const addProduct = async (req: Request, res:Response) => {
       price,
       author,
       editorial,
-      code,
       stock,
     },
   });
@@ -26,12 +25,18 @@ export const addProduct = async (req: Request, res:Response) => {
 };
 
 export const updateProduct = async (req: Request, res:Response) => {
-  const { productId } = req.params;
-  const { stock } = req.body;
+  const { productISBN } = req.params;
+  const { nuevostock } = req.body;
+  const productToUpdate = await prisma.product.findUnique({
+    where: {
+      isbn: String(productISBN)
+    },
+  });
+  const newInventory = productToUpdate?.stock + nuevostock;
 
   const product = await prisma.product.update({
-    where: { id: Number(productId) },
-    data: { stock },
+    where: { isbn: String(productISBN) },
+    data: { stock: newInventory },
   });
 
   res.json(product);

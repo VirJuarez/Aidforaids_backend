@@ -27,6 +27,5 @@ model Product {
   price       Float
   author      String
   editorial   String
-  code        String  @unique
   stock       Int
 }
