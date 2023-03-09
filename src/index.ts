@@ -1,14 +1,3 @@
-// import { PrismaClient } from '@prisma/client'
-
-// const prisma = new PrismaClient()
-
-// async function main() {
-//   // ... your Prisma Client queries will go here
-// }
-
-// main()
-//   .catch((e) => console.error(e))
-//   .finally(async () => await prisma.$disconnect())
 
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
@@ -21,6 +10,7 @@ app.use(express.json())
 
 app.use("/", routes);
 
+//USAR ESTE CODIGO PARA PROBAR FUNCIONAMIENTO GENERANDO UN NUEVO LIBRO
 // async function main() {
 //     const newProduct = await prisma.product.create({
 //       data: {

@@ -1,15 +1,23 @@
-// archivo products.controller.ts
-import prisma from '../index';
-import { Router, Request, Response } from "express";
 
+import prisma from '../index';
+import {Request, Response } from "express";
+
+
+//////////////GET TODOS LOS PRODUCTOS
 export const getProducts = async (req: Request, res:Response) => {
-  const products = await prisma.product.findMany();
-  res.json(products);
+  try{const products = await prisma.product.findMany();
+  res.json(products)
+} catch (err) {
+  console.error(err);
+  res.status(500).send('Error al consultar lista de productos');
+};
 };
 
+
+/////////////AGREGAR NUEVO PRODUCTO - SI NO ES LIBRO, USAR ISBN(CODIGO), TITLE(NOMBRE PROD), PRICE, STOCK 
 export const addProduct = async (req: Request, res:Response) => {
   const {isbn, title, price, author, editorial, stock } = req.body;
-
+  try{
   const product = await prisma.product.create({
     data: {
       isbn,
@@ -22,11 +30,17 @@ export const addProduct = async (req: Request, res:Response) => {
   });
 
   res.json(product);
+} catch (err) {
+  console.error(err);
+  res.status(500).send("No se pudo agregar el nuevo producto");
+}
 };
 
+/////////////AGREGAR STOCK DE UN PRODUCTO
 export const updateProduct = async (req: Request, res:Response) => {
   const { productISBN } = req.params;
   const { nuevostock } = req.body;
+  try{
   const productToUpdate = await prisma.product.findUnique({
     where: {
       isbn: productISBN
@@ -40,25 +54,10 @@ export const updateProduct = async (req: Request, res:Response) => {
   });
 
   res.json(product);
+} catch (err) {
+  console.error(err);
+  res.status(500).send('Error al agregar más stock');
+}
 };
 
 
-// export const addProductPurchase = async (req: Request, res:Response) => {
-//   const { productId } = req.params;
-//   const { distributor, quantity } = req.body;
-
-//   const purchase = await prisma.purchase.create({
-//     data: {
-//       productId: Number(productId),
-//       distributor,
-//       quantity,
-//     },
-//   });
-
-//   const product = await prisma.product.update({
-//     where: { id: Number(productId) },
-//     data: { stock: { increment: quantity } },
-//   });
-
-//   res.json(purchase);
-// };

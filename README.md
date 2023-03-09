@@ -15,14 +15,16 @@ Para instalar y configurar el proyecto, siga estos pasos:
 
 **3.** Ejecute el comando npm install en su terminal para instalar todas las dependencias necesarias.
 
-**4.** Cree una base de datos PostgreSQL y asegúrese de tener las credenciales necesarias para conectarse.
+**4.** Cree una base de datos PostgreSQL y asegúrese de tener las credenciales necesarias para conectarse. Debe tener tambien instalado Docker y Docker Compose para utilizar la configuración del archivo .yml
 
 **5.** Cree un archivo .env y agregue las siguientes variables de entorno: *DATABASE_URL*, 
 *JWT_SECRET*, *DATABASE_USER* y *DATABASE_PASSWORD*
 
-**6.** Ejecute las migraciones de Prisma con el siguiente comando: npx prisma migrate dev.
+**6.** Ejecute el comando *docker-compose up -d* para utilizar la configuración del archivo -yml
 
-**7.** Ejecute el comando **npm run dev** para iniciar el servidor local.
+**7.** Ejecute las migraciones de Prisma con el siguiente comando: *npx prisma migrate dev*.
+
+**8.** Ejecute el comando **npm run dev** para iniciar el servidor local.
 
 ## Endpoints
 

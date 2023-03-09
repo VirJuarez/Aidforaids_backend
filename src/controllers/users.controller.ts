@@ -1,22 +1,19 @@
 import prisma from '../index';
-import { Router, Request, Response } from "express";
+import { Request, Response } from "express";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 
+//////////REGISTRAR USUARIO NUEVO
 export const createUser = async(req: Request, res: Response) => {
   const { email, password, name } = req.body;
-
   // Verificar si el correo electrónico ya está en uso
   const existingUser = await prisma.user.findUnique({ where: { email } });
-
   if (existingUser) {
     return res.status(409).json({ message: 'El correo electrónico ya está en uso' });
   }
-
   // Crear un nuevo usuario
-  const hashedPassword = await bcrypt.hash(password, 10);
-
+  try{const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = await prisma.user.create({
     data: {
       email,
@@ -24,45 +21,51 @@ export const createUser = async(req: Request, res: Response) => {
       name
     },
   });
-
-  // Devolver el nuevo usuario al cliente
   res.json(newUser);
+} catch (err) {
+  console.error(err);
+  res.status(500).send('Error - no se pudo crear nuevo usuario');
 }
+}
+
+/////////LOGIN DE USUARIO REGISTRADO
 
 export async function login(req: Request, res: Response) {
     const { email, password } = req.body;
-  
     // Buscar el usuario en la base de datos por correo electrónico
     const user = await prisma.user.findUnique({ where: { email } });
-   
     if (!user) {
       // El usuario no existe
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
-  
     // Verificar la contraseña
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
     if (!isPasswordValid) {
       // La contraseña no es válida
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
   // Generar un token de acceso
-  const accessToken = jwt.sign(
+  try{const accessToken = jwt.sign(
     { userId: user.id, email: user.email },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
   );
-
-  // Devolver el token de acceso al cliente
+  // Devolver el token de acceso
   res.json({ accessToken });
+} catch (err) {
+  console.error(err);
+  res.status(500).send('Error en el login');
+}
 }  
   
+//////FUNCION AUXILIAR PARA VERIFICAR TOKEN
   export function verifyToken(token: string): { userId: number } {
     const payload = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: number };
     return payload;
   }
   
+
+/////////MODIFICAR DIRECCION O FOTO DE USUARIO
   export async function updateUser(req: Request, res: Response) {
     const token = req.headers.authorization?.replace('Bearer ', '');
     const { address, photoUrl, password } = req.body;
@@ -95,7 +98,7 @@ export async function login(req: Request, res: Response) {
 }
 
 
-
+//////////AÑADIR PRODUCTO AL CARRITO
 export async function addCart(req: Request, res: Response)  {
   const token = req.headers.authorization?.replace('Bearer ', '');
   const { productId, amount } = req.body;
@@ -123,10 +126,12 @@ export async function addCart(req: Request, res: Response)  {
     res.json(shoppingCart);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error adding product to shopping cart');
+    res.status(500).send('Error al agregar producto al carrito');
   }
 }
 
+
+///////////REALIZAR COMPRA
 export async function buyCart(req: Request, res: Response){
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {
@@ -144,8 +149,6 @@ export async function buyCart(req: Request, res: Response){
   if (!cart.length) {
     return res.status(400).json({ message: 'No hay productos en el carrito' });
   }
-  
-
 
    try {
     const productsToUpdate = cart.map(item => { editStock (item.productId, item.amount) }); 
@@ -158,9 +161,8 @@ export async function buyCart(req: Request, res: Response){
  
 
 
-
+/////FUNCION AUXILIAR EDITA STOCK AL HACER LA COMPRA
   const editStock = async (productId:any, amount:any ) => {
-   
     const productToUpdate = await prisma.product.findUnique({
       where: {
         id: productId
