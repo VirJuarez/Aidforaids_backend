@@ -42,6 +42,7 @@ export const updateProduct = async (req: Request, res:Response) => {
   res.json(product);
 };
 
+
 // export const addProductPurchase = async (req: Request, res:Response) => {
 //   const { productId } = req.params;
 //   const { distributor, quantity } = req.body;

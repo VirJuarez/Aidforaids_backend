@@ -97,13 +97,25 @@ export async function login(req: Request, res: Response) {
 
 
 export async function addCart(req: Request, res: Response)  {
-  const { userId } = req.params;
+  const token = req.headers.authorization?.replace('Bearer ', '');
   const { productId, amount } = req.body;
 
+  if (!token) {
+    return res.status(401).json({ message: 'Token de acceso no válido' });
+  }
+
   try {
+    const payload = verifyToken(token);
+    const userId = payload.userId;
+    const productToAdd = await prisma.product.findUnique({
+      where: {
+        id: productId
+      }});
+      
+      if (productToAdd && productToAdd.stock < amount){res.json("No hay suficiente stock")}
     const shoppingCart = await prisma.shoppingCart.create({
       data: {
-        user: { connect: { id: parseInt(userId) } },
+        user: { connect: { id: userId } },
         productId: productId,
         amount: parseInt(amount)
       }
@@ -115,39 +127,52 @@ export async function addCart(req: Request, res: Response)  {
   }
 }
 
+export async function buyCart(req: Request, res: Response){
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'Token de acceso no válido' });
+  }
+      const payload = verifyToken(token);
+      const userId = payload.userId;
 
+  const cart = await prisma.shoppingCart.findMany({
+    where: {
+      userId,
+    },
+  }); 
 
-// export const updateUser = async (
-//     { username, clave, direccion, numero_celular, dni, foto }: datosUsuario,
-//     userId: number,
-//     token: string,
-//     justPhoto: boolean = false
-//   ) => {
-//     if (justPhoto) {
-//       await sequelize.query(`UPDATE Usuarios SET foto=:foto  WHERE id=:userId`, {
-//         replacements: { foto, userId },
-//         type: QueryTypes.UPDATE,
-//       });
+  if (!cart.length) {
+    return res.status(400).json({ message: 'No hay productos en el carrito' });
+  }
   
-//       return { ...(await getUser(userId)), token };
-//     }
+
+
+   try {
+    const productsToUpdate = cart.map(item => { editStock (item.productId, item.amount) }); 
+    prisma.shoppingCart.deleteMany({ where: { userId } }),
+
+    res.json({ message: 'Compra realizada con éxito' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error al realizar la compra' })}};
+ 
 
 
 
-
-
-// export const updateProduct = async (req: Request, res:Response) => {
-//     const { id } = req.params;
-//     const { photoURL, address } = req.body;
-//     const user = await prisma.user.findUnique({
-//       where: {id: String(productISBN)},
-//     });
-//     const newInventory = productToUpdate?.stock + nuevostock;
+  const editStock = async (productId:any, amount:any ) => {
+   
+    const productToUpdate = await prisma.product.findUnique({
+      where: {
+        id: productId
+      },
+    });
+    if (productToUpdate){
+    const newInventory = productToUpdate.stock - amount;
   
-//     const product = await prisma.user.update({
-//       where: { isbn: String(productISBN) },
-//       data: { stock: newInventory },
-//     });
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: { stock: newInventory },
+    });
   
-//     res.json(user);
-//   };
+    return product}
+  }
